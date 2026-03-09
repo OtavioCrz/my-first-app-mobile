@@ -1,98 +1,77 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
+import React from 'react';
+import { StyleSheet, Text, View, Image, TouchableOpacity,
+Alert, Button } from 'react-native';
+import { useState } from 'react';
+import { LinearGradient } from 'expo-linear-gradient';
+export default function App() {
 
-import { HelloWave } from '@/components/hello-wave';
-import ParallaxScrollView from '@/components/parallax-scroll-view';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { Link } from 'expo-router';
+const [count, setCount] = useState(0); // 1. Estado para Contagem
 
-export default function HomeScreen() {
-  return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12',
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <Link href="/modal">
-          <Link.Trigger>
-            <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-          </Link.Trigger>
-          <Link.Preview />
-          <Link.Menu>
-            <Link.MenuAction title="Action" icon="cube" onPress={() => alert('Action pressed')} />
-            <Link.MenuAction
-              title="Share"
-              icon="square.and.arrow.up"
-              onPress={() => alert('Share pressed')}
-            />
-            <Link.Menu title="More" icon="ellipsis">
-              <Link.MenuAction
-                title="Delete"
-                icon="trash"
-                destructive
-                onPress={() => alert('Delete pressed')}
-              />
-            </Link.Menu>
-          </Link.Menu>
-        </Link>
+ const handlePress = () => {
+ Alert.alert('Sucesso!', 'Você clicou no botão!');
+ }
+ return (
+ <View style={styles.container}>
+ {/* 1. Imagem de Topo */}
+ <Image
+ source={{ uri:
+'https://cdn.neemo.com.br/uploads/settings_webdelivery/logo/12184/Logo_01.jpg' }}
+ style={styles.logo}
+ />
+ <Text style={styles.titulo}>Toque aqui!</Text>
+ <TouchableOpacity onPress={handlePress}>
+  <LinearGradient
+    colors={['#6300c0', '#b700ff']}
+    style={styles.botao}
+  >
+    <Text style={styles.textoBotao}>Clique Aqui</Text>
+  </LinearGradient>
+</TouchableOpacity>
 
-        <ThemedText>
-          {`Tap the Explore tab to learn more about what's included in this starter app.`}
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          {`When you're ready, run `}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
-  );
+ <Button
+    title={`Contador: ${count}`}
+    onPress={() => setCount(count + 1)}
+    color="purple"
+ />
+ </View>
+
+ );
 }
-
+// 4. Estilização (Equivalente ao CSS)
 const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
-  },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
-  },
+ container: {
+ flex: 1,
+ backgroundColor: '#fff',
+ alignItems: 'center',
+ justifyContent: 'center',
+ padding: 20,
+ },
+ logo: {
+ width: 100,
+ height: 100,
+ marginBottom: 20,
+ },
+ titulo: {
+ fontSize: 28,
+ fontWeight: 'bold',
+ color: '#333',
+ },
+ subtitulo: {
+ fontSize: 16,
+ color: '#666',
+ marginBottom: 30,
+ },
+ botao: {
+ backgroundColor: '#6900f1',
+ paddingVertical: 12,
+ paddingHorizontal: 30,
+ borderRadius: 16,
+ marginTop: 20,
+ marginBottom: 20,
+ },
+ textoBotao: {
+ color: '#fff',
+ fontSize: 18,
+ fontWeight: '600',
+ },
 });

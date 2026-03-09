@@ -1,10 +1,10 @@
 {
   "expo": {
-    "name": "meu-projeto-mobilex",
-    "slug": "meu-projeto-mobilex",
+    "name": "Rastreador MP",
+    "slug": "rastreador-mp",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
+    "icon": "https://cdn.neemo.com.br/uploads/settings_webdelivery/logo/12184/Logo_01.jpg",
     "scheme": "meuprojetomobilex",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
@@ -12,6 +12,8 @@
       "supportsTablet": true
     },
     "android": {
+      "package": "com.otavio.RastreadorMP",
+      "googleServicesFile": "./firebase/google-services.json",
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
