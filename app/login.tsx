@@ -61,14 +61,14 @@ export default function LoginScreen() {
     }
   }
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
-      style={{ flex: 1 }}
+    <ImageBackground
+      source={require("@/assets/images/login/bg-login.png")}
+      style={styles.container}
+      resizeMode="cover"
     >
-      <ImageBackground
-        source={require("@/assets/images/login/bg-login.png")}
-        style={styles.container}
-        resizeMode="cover"
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : undefined}
+        style={{ flex: 1 }}
       >
         <Pressable style={styles.safe} onPress={Keyboard.dismiss}>
           <Image
@@ -128,6 +128,15 @@ export default function LoginScreen() {
               </Pressable>
             </View>
 
+            <Pressable
+              onPress={() => router.push("/reset-password")}
+              style={{ marginLeft: "auto" }}
+            >
+              <Text style={{ color: "#F4A300", marginLeft: 8, padding: 4 }}>
+                Esqueci minha senha
+              </Text>
+            </Pressable>
+
             {errorMessage ? (
               <Text style={styles.errorText}>{errorMessage}</Text>
             ) : null}
@@ -142,9 +151,19 @@ export default function LoginScreen() {
               </Text>
             </Pressable>
           </View>
+
+          <View style={{ alignItems: "center", marginTop: "auto", marginBottom: 20 }}>
+          <Text style={{ color: "#fff"}}>
+            Ainda não tem uma conta?{" "}
+          <Text style={{ color: "#F4A300" }} onPress={() => router.push("/register")}>
+              Fale com o suporte
+            </Text>
+          </Text>
+          </View>
+
         </Pressable>
-      </ImageBackground>
-    </KeyboardAvoidingView>
+      </KeyboardAvoidingView>
+    </ImageBackground>
   );
 }
 
@@ -160,22 +179,22 @@ const styles = StyleSheet.create({
   },
 
   logo: {
-    width: 150,
-    height: 150,
-    marginBottom: 20,
+    width: 200,
+    height: 200,
   },
 
   subtitulo: {
-    fontSize: 18,
+    fontSize: 24,
     fontWeight: "bold",
     color: "#fff",
-    marginBottom: 24,
+    marginTop: -40,
+    marginBottom: 60,
   },
 
   truck: {
-    width: 160,
-    height: 100,
-    marginBottom: -18,
+    width: 300,
+    height: 150,
+    marginBottom: -80,
     zIndex: 1,
   },
 
@@ -184,7 +203,7 @@ const styles = StyleSheet.create({
     borderRadius: 24,
     padding: 20,
     width: "100%",
-    paddingTop: 28,
+    paddingTop: 80,
   },
 
   input: {
@@ -232,5 +251,5 @@ const styles = StyleSheet.create({
 
   buttonText: { color: "#fff", fontSize: 18, fontWeight: "700" },
 
-  errorText: { color: "red", fontSize: 14, marginBottom: 12 },
+  errorText: { color: "red", fontSize: 14, marginBottom: 12, justifyContent: "center", textAlign: "center", marginTop: 12 },
 });
