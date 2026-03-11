@@ -1,9 +1,9 @@
+import { collection, doc, getDoc, getDocs } from "firebase/firestore"; //  collection aponta para uma coleção e getDocs busca os dados de uma coleção inteira, doc aponta para um documento específico, getDoc busca os dados de um documento específico
 import React, { useEffect, useRef, useState } from "react"; // Importando React e os hooks useEffect e useState para gerenciar o estado e os efeitos colaterais
-import { View, StyleSheet } from "react-native"; // Importando os componentes básicos do React Native
+import { StyleSheet, View } from "react-native"; // Importando os componentes básicos do React Native
 import MapView, { Marker } from "react-native-maps"; // Importando o MapView e Marker do react-native-maps
-import { collection, getDocs, doc, getDoc } from "firebase/firestore"; //  collection aponta para uma coleção e getDocs busca os dados de uma coleção inteira, doc aponta para um documento específico, getDoc busca os dados de um documento específico
 // sem getDoc, não lê o documento do supervisor.
-import { db } from "@/firebase/firebaseConfig"; // Importando a configuração do Firebase para acessar o Firestore
+import { auth, db } from "@/firebase/firebaseConfig"; // Importando a configuração do Firebase para acessar o Firestore
 
 type Point = {
   // Definindo o tipo Point para representar os pontos a serem exibidos no mapa
@@ -21,7 +21,12 @@ export default function MapScreen() {
     // useEffect é um hook que executa uma função após o componente ser montado. Aqui, ele é usado para carregar os pontos do Firestore quando o componente é renderizado pela primeira vez
 
     async function loadPoints() {
-      const currentUserId = "tghWAHAc5SiM1GIoONj8"; //supervisor ou logistica simulado
+      /*const currentUserId = "nvuyVlWZWmSiMYeWlacGU95qK523"; //supervisor ou logistica simulado*/
+      const currentUserId = auth.currentUser?.uid;
+      if (!currentUserId) {
+        return; // Se não houver um usuário autenticado, a função loadPoints é encerrada imediatamente, evitando tentativas de acessar dados do Firestore sem um usuário válido.
+      }
+
       const userSnap = await getDoc(doc(db, "users", currentUserId)); //precisa saber quem é o usuário antes de puxar as lojas
       const userData = userSnap.data() || {};
       const role: string = userData?.role || "supervisor"; // se userData.role existir, use-o; caso contrário, use "supervisor" como valor padrão (se logistica = vê tudo; se supervisor = vê só os pontos relacionados a ele)
