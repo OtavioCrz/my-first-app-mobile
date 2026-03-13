@@ -1,102 +1,170 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
-  StyleSheet,
-  Text,
   View,
-  Image,
-  TouchableOpacity,
-  Alert,
-  Button,
+  Text,
+  ActivityIndicator,
+  StyleSheet,
   Pressable,
+  Dimensions,
+  ScrollView,
 } from "react-native";
-import { useState } from "react";
-import { LinearGradient } from "expo-linear-gradient";
-import { SafeAreaView } from "react-native-safe-area-context"; // SafeAreaView é um componente que garante que o conteúdo seja exibido dentro das áreas seguras da tela, evitando sobreposição com elementos do sistema, como a barra de status ou o notch em dispositivos modernos.
+import { SafeAreaView } from "react-native-safe-area-context";
+import { auth, db } from "@/firebase/firebaseConfig";
+import { collection, doc, getDoc, getDocs } from "firebase/firestore";
 import { signOut } from "firebase/auth";
-import { auth } from "@/firebase/firebaseConfig";
 import { useRouter } from "expo-router";
+import { BarChart } from "react-native-chart-kit";
 
-export default function App() {
+export default function HomeScreen() {
   const router = useRouter();
 
-  async function handleLogout() {
-    await signOut(auth);
-    router.replace("/login"); // com replace, o usuário não pode voltar para a tela anterior (tela de abas) usando o botão de voltar do dispositivo, garantindo que ele seja redirecionado para a tela de login após o logout. O que seria possível com .push
+  const [userData, setUserData] = useState<any>(null); //any pq ainda não sei o formato dos dados do usuário, e null pq inicialmente não tem dados carregados
+  const [routes, setRoutes] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [usersMap, setUsersMap] = useState<any>({})
+
+  useEffect(() => {
+    async function loadData() {
+      const currentUserId = auth.currentUser?.uid;
+      if (!currentUserId) {
+        setLoading(false);
+        return;
+      }
+
+      const userSnap = await getDoc(doc(db, "users", currentUserId));
+      const userDataFromFirestore = userSnap.data() || {}; //.data transforma o snapshot em um objeto com os dados do usuário
+      setUserData(userDataFromFirestore); //setUserData atualiza o estado do componente com os dados do usuário, o que faz com que o componente seja re-renderizado e mostre as informações do usuário na tela
+
+      const routesSnap = await getDocs(collection(db, "routes"));
+      const routesData = routesSnap.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+      setRoutes(routesData);
+
+      setLoading(false);
+    }
+
+    loadData();
+  }, []);
+
+  if (loading) {
+    return (
+      <SafeAreaView
+        style={{ flex: 1, alignItems: "center", justifyContent: "center" }}
+      >
+        <ActivityIndicator size="large" color="#5b00d3" />
+      </SafeAreaView>
+    );
   }
 
-  const [count, setCount] = useState(0); // 1. Estado para Contagem
-
-  const handlePress = () => {
-    Alert.alert("Sucesso!", "Você clicou no botão!");
-  };
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.safe}>
+      <ScrollView>
+        <View>
+          <View style={styles.routeContainer}>
+            <Text> Olá, {userData?.name}</Text>
+            <Pressable
+              onPress={async () => {
+              await signOut(auth);
+              router.replace("/login");
+            }}
+          >
+            <Text>Sair</Text>
+          </Pressable>
+        </View>
 
-      <Pressable onPress={handleLogout} style={styles.botao}>
-        <Text style={styles.textoBotao}>Logout</Text>
-      </Pressable>
-      
-      {/* 1. Imagem de Topo */}
-      <Image
-        source={{
-          uri: "https://cdn.neemo.com.br/uploads/settings_webdelivery/logo/12184/Logo_01.jpg",
-        }}
-        style={styles.logo}
-      />
-      <Text style={styles.titulo}>Toque aqui!</Text>
-      <TouchableOpacity onPress={handlePress}>
-        <LinearGradient colors={["#6300c0", "#b700ff"]} style={styles.botao}>
-          <Text style={styles.textoBotao}>Clique Aqui</Text>
-        </LinearGradient>
-      </TouchableOpacity>
+        <View style={styles.cardsContainer}>
+          <View>
+            <Text>{routes.length} Rotas</Text>
+            <Text>Total</Text>
+          </View>
 
-      <Button
-        title={`Contador: ${count}`}
-        onPress={() => setCount(count + 1)}
-        color="purple"
-      />
+          <View>
+            <Text>
+              {routes.filter((r) => r.status === "em_andamento").length} Rotas
+            </Text>
+            <Text>Em andamento</Text>
+          </View>
 
-      
-    </View>
+          <View>
+            <Text>
+              {routes.filter((r) => r.status === "concluida").length} Rotas
+            </Text>
+            <Text>Concluídas</Text>
+          </View>
+        </View>
 
-    
+        <BarChart
+          data={{
+            labels: ["Pendente", "Em andamento", "Concluída"],
+            datasets: [
+              {
+                data: [
+                  routes.filter((r) => r.status === "pendente").length,
+                  routes.filter((r) => r.status === "em_andamento").length,
+                  routes.filter((r) => r.status === "concluida").length,
+                ],
+              },
+            ],
+          }}
+          width={Dimensions.get("window").width - 40}
+          height={220}
+          chartConfig={{
+            backgroundColor: "#d85800",
+            backgroundGradientFrom: "#d78700",
+            backgroundGradientTo: "#d78700",
+            decimalPlaces: 0,
+            color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
+            style: {
+              borderRadius: 16,
+            },
+          }}
+          style={{
+            marginVertical: 8,
+            borderRadius: 16,
+          }}
+          yAxisLabel=""
+          yAxisSuffix=""
+        />
+
+        <Text style={styles.titulo}>Rotas Recentes</Text>
+        {routes.map((route) => (
+          <View key={route.id}>
+            <Text>Rota: {route.id}</Text>
+            <Text>Status: {route.status}</Text>
+          </View>
+        ))}
+        
+      </View>
+    </ScrollView>
+  </SafeAreaView>
   );
 }
-// 4. Estilização (Equivalente ao CSS)
+
 const styles = StyleSheet.create({
-  container: {
+  safe: {
     flex: 1,
-    backgroundColor: "#fff",
-    alignItems: "center",
-    justifyContent: "center",
-    padding: 20,
   },
-  logo: {
-    width: 100,
-    height: 100,
-    marginBottom: 20,
+
+  routeContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    width: "100%",
+    paddingHorizontal: 20,
   },
-  titulo: {
-    fontSize: 28,
-    fontWeight: "bold",
-    color: "#333",
+
+  cardsContainer: {
+    flexDirection: "row",
+    justifyContent: "space-around",
   },
-  subtitulo: {
-    fontSize: 16,
-    color: "#666",
-    marginBottom: 30,
-  },
-  botao: {
-    backgroundColor: "#6900f1",
-    paddingVertical: 12,
-    paddingHorizontal: 30,
-    borderRadius: 16,
-    marginTop: 20,
-    marginBottom: 20,
-  },
-  textoBotao: {
-    color: "#fff",
+
+  titulo:{
     fontSize: 18,
-    fontWeight: "600",
+    fontWeight: "bold",
+    marginTop: 20,
+    marginLeft: 20,
+
+
   },
 });

@@ -22,7 +22,7 @@ export default function MapScreen() {
 
     async function loadPoints() {
       /*const currentUserId = "nvuyVlWZWmSiMYeWlacGU95qK523"; //supervisor ou logistica simulado*/
-      const currentUserId = auth.currentUser?.uid;
+      const currentUserId = auth.currentUser?.uid; // Obtém o ID do usuário atualmente autenticado usando o Firebase Authentication. O operador de encadeamento opcional (?.) é usado para evitar erros caso não haja um usuário autenticado, retornando undefined em vez de lançar um erro.
       if (!currentUserId) {
         return; // Se não houver um usuário autenticado, a função loadPoints é encerrada imediatamente, evitando tentativas de acessar dados do Firestore sem um usuário válido.
       }
