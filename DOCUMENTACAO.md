@@ -29,8 +29,17 @@ acompanhe em tempo real a localização dos caminhões de entrega e o status das
 
 **Usuários do sistema:**
 - **Logística** → vê tudo: todas as rotas, todos os caminhões, todos os pontos no mapa
-- **Supervisor** → vê apenas as lojas que estão sob sua responsabilidade
-- **Motorista** → vê apenas suas rotas atribuídas
+- **Supervisor** → vê apenas as lojas que estão sob sua responsabilidade; assina digitalmente o recebimento das entregas
+- **Motorista** → vê apenas suas rotas atribuídas; confirma entrega no app ao chegar na loja
+
+**Funcionalidades planejadas para as entregas:**
+- Cada parada terá um campo de **peso da carga** (ex: 2 toneladas)
+- Gráfico de peso entregue filtrável por **dia, mês e ano**
+- Fluxo de confirmação de recebimento:
+  1. Motorista confirma chegada/entrega no app
+  2. Supervisor confirma o recebimento
+  3. Supervisor assina digitalmente (assinatura no app)
+- Esses dados serão armazenados por parada na coleção `routes`
 
 ---
 
@@ -235,17 +244,28 @@ Por que `<any>` e `<any[]>`? TypeScript infere o tipo pelo valor inicial. `useSt
 - Mostra ID e status de cada rota
 - `ScrollView` adicionado para permitir rolagem quando conteúdo ultrapassa a tela
 
-**Step 9 🚧 — Melhorar lista de rotas (próximo)**
-- Criar `usersMap` (lookup map) para traduzir `motoristId` → nome do motorista
-- Estado `usersMap` criado com `useState<any>({})`
-- Falta: buscar users no `loadData`, popular o map, e usar no JSX
-- Depois: mostrar contagem de paradas (concluídas/total) por rota
+**Step 9 ✅ — Melhorar lista de rotas com nome do motorista**
+- `usersMap` populado dentro do `loadData` com `getDocs(collection(db, "users"))`
+- `forEach` usado para construir o objeto `{ uid: dadosDoUsuario }` (diferente do `.map()` — não retorna array, só executa ação)
+- No JSX: `usersMap[route.motoristaId]?.name || "Não Atribuído"` para exibir nome com fallback
+- Erro cometido: campo nomeado `userId` e depois `motoristaId` errado antes de descobrir o nome correto no Firebase (`motoristaId`)
+- Lição: sempre verificar o nome exato do campo no Firebase antes de usar no código
+
+**Step 10 ✅ — Contagem de paradas por rota**
+- `(route.stops || []).filter((stop: any) => stop.status === "concluida").length` para contar paradas concluídas
+- `(route.stops || [])` em vez de `route.stops?.` — garante array mesmo se `stops` for undefined, e permite TypeScript inferir o tipo do callback
+- `(stop: any)` — tipo explícito necessário quando TypeScript não consegue inferir em callbacks de arrays com tipo `any`
+- Erros cometidos: `useState` usado no lugar de tipagem de variável; lógica invertida com `!==`; `&& "em_andamento"` solto sem comparação; acento em `"concluída"`
+- Lição: quando quiser filtrar por um valor específico, use `=== "valor"` direto — é sempre mais simples e legível que negar os outros valores
 
 **Steps futuros:**
 - Filtros por status, motorista ou data
 - Tela de detalhes da rota (ao clicar numa rota)
 - Rastreamento em tempo real (coleção `locations`)
 - Ações: criar rotas, atribuir motoristas
+- Peso por entrega + gráfico filtrado por dia/mês/ano
+- Confirmação de recebimento pelo motorista + supervisor
+- Assinatura digital do supervisor no recebimento
 - Firestore Security Rules para produção
 
 ---
@@ -450,7 +470,8 @@ também deveriam reforçar essas restrições. Isso será implementado futuramen
 | Mar/2026 | Dashboard Step 7: BarChart com react-native-chart-kit (cores laranja Maria Pitanga) |
 | Mar/2026 | Dashboard Step 8: Lista de rotas com .map() + ScrollView |
 | Mar/2026 | Padronização Firebase: "em andamento" → "em_andamento", "concluída" → "concluida" |
-| Mar/2026 | 🚧 Dashboard Step 9: Melhorar lista com usersMap (lookup map para nomes de motoristas) |
+| Mar/2026 | Dashboard Step 9: usersMap completo — nomes dos motoristas exibidos na lista de rotas |
+| Mar/2026 | Dashboard Step 10: Contagem de paradas concluídas/total por rota |
 
 ---
 

@@ -42,6 +42,13 @@ export default function HomeScreen() {
       }));
       setRoutes(routesData);
 
+      const usersSnap = await getDocs(collection(db, "users"));
+      const usersData: any = {}; //any pq ainda não sei o formato dos dados dos usuários
+      usersSnap.forEach((doc) => {
+        usersData[doc.id] = doc.data();
+      });
+      setUsersMap(usersData);
+
       setLoading(false);
     }
 
@@ -133,6 +140,12 @@ export default function HomeScreen() {
           <View key={route.id}>
             <Text>Rota: {route.id}</Text>
             <Text>Status: {route.status}</Text>
+            <Text>Usuário: {usersMap[route.motoristaId]?.name  || "Não Atribuido"}</Text>
+            <Text>{(route.stops || []).filter((stop: any) => stop.status === "concluida").length || 0}
+              /
+              {route.stops?.length || 0} Paradas Concluídas</Text>
+            
+
           </View>
         ))}
         
